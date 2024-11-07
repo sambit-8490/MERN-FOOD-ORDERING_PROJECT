@@ -8,14 +8,15 @@ const app = express();
 const port = 4000;
 
 // Middlewares
-app.use(express.json()); //get requestion from frontend to backend it will be parsed as json
-app.use(cors()); // access backend from frontend
+app.use(express.json()); //parsed as json
+app.use(cors());
 
 // DB Connection
-connectDB();
+connectDB(); 
 
 // API Endpoints
 app.use("/api/food",foodRouter);
+app.use("/images",express.static('uploads'));
 
 app.get("/", (req,res)=>{
     res.send("API is running");
@@ -24,4 +25,3 @@ app.get("/", (req,res)=>{
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
 });
-
