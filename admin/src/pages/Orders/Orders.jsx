@@ -9,30 +9,56 @@ const Orders = ({ url }) => {
   const [orders, setOrders] = useState([]);
 
   const fetchAllOrders = async () => {
-    const response = await axios.get(url + "/api/order/list");
-    if (response.data.success) {
-      setOrders(response.data.data);
-      console.log(response.data.data);
-    } else {
-      toast.error("Error");
+    try {
+      const response = await axios.get(url + "/api/order/list");
+      if (response.data.success) {
+        setOrders(response.data.data);
+        console.log(response.data.data);
+      } else {
+        toast.error("Error fetching orders");
+      }
+    } catch (error) {
+      toast.error("An error occurred while fetching orders");
     }
   };
 
   const statusHandler = async (event, orderId) => {
-    const response = await axios.post(url + "/api/order/status", {
-      orderId,
-      status: event.target.value,
-    });
-    if (response.data.success) {
-      await fetchAllOrders();
-    } else {
-      toast.error("Error");
+    try {
+      const response = await axios.post(url + "/api/order/status", {
+        orderId,
+        status: event.target.value,
+      });
+      if (response.data.success) {
+        await fetchAllOrders();
+      } else {
+        toast.error("Error updating status");
+      }
+    } catch (error) {
+      toast.error("An error occurred while updating status");
+    }
+  };
+
+  const deleteOrder = async (orderId) => {
+    console.log(`Attempting to delete order with ID: ${orderId}`);  // Debugging statement
+    try {
+      const response = await axios.delete(`${url}/api/order/${orderId}`);
+      console.log('Response from server:', response);  // Debugging statement
+      if (response.data.success) {
+        toast.success("Order deleted successfully");
+        setOrders((prevOrders) => prevOrders.filter(order => order._id !== orderId));  // Update state locally
+      } else {
+        toast.error("Error deleting order");
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting the order");
+      console.error('Error details:', error);  // Log the error for further debugging
     }
   };
 
   useEffect(() => {
     fetchAllOrders();
   }, []);
+
   return (
     <div className="order add">
       <h3>Order Page</h3>
@@ -79,6 +105,12 @@ const Orders = ({ url }) => {
               <option value="Out For Delivery">Out For Delivery</option>
               <option value="Delivered">Delivered</option>
             </select>
+            <button
+              className="delete-button"
+              onClick={() => deleteOrder(order._id)}
+            >
+              Delete
+            </button>
           </div>
         ))}
       </div>
