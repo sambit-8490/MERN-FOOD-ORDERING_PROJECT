@@ -21,6 +21,22 @@ const addFood = async (req, res) => {
   }
 };
 
+// View One Food Item
+const viewFood = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.params.id);
+    if (!food) {
+      res.json({ success: false, message: "Food Item not found!" });
+    } else {
+      res.json({ success: true, data: food });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Failed to fetch Food Item!" });
+  }
+};
+
+
 // All Food List
 const listFood = async (req, res) => {
   try {
@@ -47,4 +63,36 @@ const removeFood = async (req, res) => {
     }
 };
 
-export { addFood, listFood, removeFood };
+// Edit Food Item
+const editFood = async (req, res) => {
+  try {
+    const food = await foodModel.findById(req.params.id);
+    if (!food) {
+      res.json({ success: false, message: "Food Item not found!" });
+    } else {
+      // Check if a new image is uploaded
+      let image_filename = food.image;
+      if (req.file) {
+        // Delete the old image
+        fs.unlink(`uploads/${food.image}`, () => {});
+        image_filename = req.file.filename;
+      }
+
+      // Update the food item
+      food.name = req.body.name || food.name;
+      food.description = req.body.description || food.description;
+      food.price = req.body.price || food.price;
+      food.image = image_filename;
+      food.category = req.body.category || food.category;
+
+      await food.save();
+      res.json({ success: true, message: "Food Item Updated!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Failed to update Food Item!" });
+  }
+};
+
+
+export { addFood, listFood, removeFood,viewFood,editFood };
