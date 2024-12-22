@@ -18,7 +18,7 @@ const Edit = ({ url }) => {
   useEffect(() => {
     const fetchFoodDetails = async () => {
       try {
-        const response = await axios.get(`${url}/api/food/list/${id}`);
+        const response = await axios.get(`${url}/api/food/${id}`);
         if (response.data.success) {
           const food = response.data.data;
           setData({
@@ -47,7 +47,7 @@ const Edit = ({ url }) => {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     const formData = new FormData();
-    formData.append("id", id);
+
     formData.append("name", data.name);
     formData.append("description", data.description);
     formData.append("price", Number(data.price));
@@ -57,7 +57,7 @@ const Edit = ({ url }) => {
     }
 
     try {
-      const response = await axios.post(`${url}/api/food/edit`, formData);
+      const response = await axios.put(`${url}/api/food/${id}`, formData);
       if (response.data.success) {
         toast.success(response.data.message);
         navigate("/list"); // Navigate to the food list after a successful update
